@@ -50,4 +50,8 @@ EOF
 sudo systemctl daemon-reload
 sudo systemctl enable --now codemao-migration-backup.timer
 sudo systemctl start codemao-migration-backup.service
+git -C "$PROJECT_DIR" config core.hooksPath .githooks
+
 sudo systemctl --no-pager status codemao-migration-backup.timer
+echo "GIT_HOOKS=enabled"
+echo "每次 commit 或 pull/merge 后会异步排队迁移备份。"

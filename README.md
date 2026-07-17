@@ -46,3 +46,11 @@
     ./ops/migration-restore.sh --verify-only /path/codemao-migration-时间.tar.gz
 
 完整的新服务器迁移步骤见 MIGRATION.md。迁移归档包含学生数据和密钥，不得提交到 Git 或公共存储。
+
+## 更新后的异步备份
+
+每次 Git commit 或 pull/merge 会异步排队完整迁移备份。部署完成并确认健康后再执行：
+
+    ./ops/trigger-async-backup.sh post-deploy
+
+该命令立即返回，实际备份由 systemd 后台执行。

@@ -75,3 +75,22 @@
 - 姓名查 ID、ID 查学生和 CSV 导出正常
 - Excel 导入记录与审计日志存在
 - .env、数据库和迁移归档权限为 600
+
+## 每次项目更新后的异步备份
+
+仓库使用版本化 Git hooks。每次 commit 或 pull/merge 后，都会通过 systemd 异步触发迁移备份，不阻塞 Git 操作。
+
+安装或重新启用：
+
+    cd /opt/codemao
+    ./ops/install-backup-timer.sh
+    git config --get core.hooksPath
+
+完成应用部署并确认健康后，还必须显式触发一次：
+
+    ./ops/trigger-async-backup.sh post-deploy
+
+确认异步任务执行成功：
+
+    systemctl status codemao-migration-backup.service
+    journalctl -u codemao-migration-backup.service -n 50

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -u
+
+ROOT="$(git rev-parse --show-toplevel)"
+"$ROOT/ops/trigger-async-backup.sh" git-post-merge   >>/tmp/codemao-backup-trigger.log 2>&1 || true
