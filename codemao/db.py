@@ -31,6 +31,7 @@ def get_db():
         os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
         g.db = sqlite3.connect(path, timeout=15)
         g.db.row_factory = sqlite3.Row
+        os.chmod(path, 0o600)
         g.db.execute("PRAGMA foreign_keys = ON")
         g.db.execute("PRAGMA busy_timeout = 5000")
     return g.db
