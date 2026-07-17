@@ -201,3 +201,29 @@ legend { font-weight: 650; margin-bottom: 8px; }
   .button-row .button { flex: 1; }
   .login-panel { padding: 24px; }
 }
+
+.query-tabs {
+  display: inline-flex;
+  gap: 4px;
+  margin-bottom: 12px;
+  padding: 4px;
+  background: #e8edf0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.query-tabs a {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  color: #4b5762;
+  border-radius: 4px;
+  font-weight: 650;
+}
+.query-tabs a.active {
+  color: var(--brand-dark);
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(24, 35, 45, 0.1);
+}
+.query-panel { margin-top: 0; }
+.query-summary.three { margin-top: 18px; margin-bottom: 0; }

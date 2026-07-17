@@ -190,34 +190,61 @@ def logout():
 @bp.route("/", methods=("GET", "POST"))
 @permission_required("query_students")
 def query():
-    raw_names = ""
+    mode = request.values.get("mode", "name")
+    if mode not in {"name", "id"}:
+        mode = "name"
+
+    raw_values = ""
     results = None
     summary = None
     if request.method == "POST":
-        raw_names = request.form.get("names", "")
-        names = parse_names(raw_names)
-        if not names:
-            flash("请至少输入一个学生姓名", "error")
-        elif len(names) > MAX_QUERY_NAMES:
-            flash(f"单次最多查询 {MAX_QUERY_NAMES} 个姓名", "error")
+        field_name = "ids" if mode == "id" else "names"
+        raw_values = request.form.get(field_name, "")
+        values = parse_names(raw_values)
+        value_label = "ID" if mode == "id" else "姓名"
+        if not values:
+            flash(f"请至少输入一个学生{value_label}", "error")
+        elif len(values) > MAX_QUERY_NAMES:
+            flash(f"单次最多查询 {MAX_QUERY_NAMES} 个{value_label}", "error")
         else:
-            unique_names = list(dict.fromkeys(names))
-            placeholders = ",".join("?" for _ in unique_names)
-            rows = get_db().execute(
-                f"""
-                SELECT user_id, name, gender, age, grade, class_name
-                FROM students
-                WHERE name IN ({placeholders})
-                ORDER BY name, grade, class_name, user_id
-                """,
-                unique_names,
-            ).fetchall()
-            by_name = {}
-            for row in rows:
-                by_name.setdefault(row["name"], []).append(row)
-            results = [{"input_name": name, "matches": by_name.get(name, [])} for name in names]
-            found = sum(1 for item in results if item["matches"])
-            ambiguous = sum(1 for item in results if len(item["matches"]) > 1)
+            placeholders = ",".join("?" for _ in values)
+            if mode == "id":
+                rows = get_db().execute(
+                    f"""
+                    SELECT user_id, name, gender, age, grade, class_name
+                    FROM students
+                    WHERE user_id IN ({placeholders})
+                    ORDER BY user_id
+                    """,
+                    values,
+                ).fetchall()
+                by_id = {row["user_id"]: row for row in rows}
+                results = [
+                    {"input_id": user_id, "student": by_id.get(user_id)}
+                    for user_id in values
+                ]
+                found = sum(1 for item in results if item["student"])
+                ambiguous = 0
+            else:
+                rows = get_db().execute(
+                    f"""
+                    SELECT user_id, name, gender, age, grade, class_name
+                    FROM students
+                    WHERE name IN ({placeholders})
+                    ORDER BY name, grade, class_name, user_id
+                    """,
+                    values,
+                ).fetchall()
+                by_name = {}
+                for row in rows:
+                    by_name.setdefault(row["name"], []).append(row)
+                results = [
+                    {"input_name": name, "matches": by_name.get(name, [])}
+                    for name in values
+                ]
+                found = sum(1 for item in results if item["matches"])
+                ambiguous = sum(1 for item in results if len(item["matches"]) > 1)
+
             summary = {
                 "total": len(results),
                 "found": found,
@@ -226,14 +253,16 @@ def query():
             }
             audit(
                 "student_query",
-                summary,
+                {**summary, "mode": mode},
                 user_id=g.user["id"],
                 ip_address=client_ip(),
             )
+
     roster_count = get_db().execute("SELECT COUNT(*) FROM students").fetchone()[0]
     return render_template(
         "query.html",
-        raw_names=raw_names,
+        mode=mode,
+        raw_values=raw_values,
         results=results,
         summary=summary,
         roster_count=roster_count,

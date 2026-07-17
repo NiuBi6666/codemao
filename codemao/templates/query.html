@@ -8,36 +8,72 @@
   </div>
 </div>
 
-<section class="tool-panel">
+<div class="query-tabs" role="tablist" aria-label="查询方式">
+  <a role="tab" aria-selected="{{ 'true' if mode == 'name' else 'false' }}" class="{{ 'active' if mode == 'name' }}" href="{{ url_for('web.query', mode='name') }}">按姓名查 ID</a>
+  <a role="tab" aria-selected="{{ 'true' if mode == 'id' else 'false' }}" class="{{ 'active' if mode == 'id' }}" href="{{ url_for('web.query', mode='id') }}">按 ID 查学生</a>
+</div>
+
+<section class="tool-panel query-panel">
   <form method="post" class="query-form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-    <label for="names">学生姓名</label>
-    <textarea id="names" name="names" rows="9" placeholder="每行输入一个姓名，也支持逗号分隔" required>{{ raw_names }}</textarea>
+    <input type="hidden" name="mode" value="{{ mode }}">
+    {% if mode == 'id' %}
+      <label for="ids">学生 ID</label>
+      <textarea id="ids" name="ids" rows="9" placeholder="每行输入一个 ID，也支持逗号分隔" required>{{ raw_values }}</textarea>
+    {% else %}
+      <label for="names">学生姓名</label>
+      <textarea id="names" name="names" rows="9" placeholder="每行输入一个姓名，也支持逗号分隔" required>{{ raw_values }}</textarea>
+    {% endif %}
     <div class="toolbar">
-      <span class="field-note">单次最多 500 个姓名</span>
-      <button class="button primary" type="submit">查询 ID</button>
+      <span class="field-note">单次最多 500 个{{ 'ID' if mode == 'id' else '姓名' }}，重复内容自动去重</span>
+      <button class="button primary" type="submit">{{ '查询学生' if mode == 'id' else '查询 ID' }}</button>
     </div>
   </form>
 </section>
 
 {% if summary %}
-<section class="summary-strip" aria-label="查询统计">
+<section class="summary-strip query-summary {{ 'three' if mode == 'id' }}" aria-label="查询统计">
   <div><strong>{{ summary.total }}</strong><span>输入</span></div>
   <div><strong>{{ summary.found }}</strong><span>已找到</span></div>
   <div class="{{ 'warn' if summary.missing else '' }}"><strong>{{ summary.missing }}</strong><span>未找到</span></div>
-  <div class="{{ 'warn' if summary.ambiguous else '' }}"><strong>{{ summary.ambiguous }}</strong><span>重名</span></div>
+  {% if mode == 'name' %}<div class="{{ 'warn' if summary.ambiguous else '' }}"><strong>{{ summary.ambiguous }}</strong><span>重名</span></div>{% endif %}
 </section>
 
 <section class="results-section">
   <div class="section-heading">
     <h2>查询结果</h2>
     <div class="button-row">
-      <button class="button secondary" id="copy-results" type="button">复制结果</button>
+      {% if mode == 'name' %}<button class="button secondary" id="copy-results" type="button">复制结果</button>{% endif %}
       <button class="button secondary" id="export-results" type="button">导出 CSV</button>
     </div>
   </div>
   <div class="table-wrap">
     <table id="result-table">
+      {% if mode == 'id' %}
+      <thead>
+        <tr><th>输入 ID</th><th>姓名</th><th>性别</th><th>年龄</th><th>年级</th><th>班级</th><th>状态</th></tr>
+      </thead>
+      <tbody>
+      {% for item in results %}
+        {% if item.student %}
+        <tr class="result-row">
+          <td class="id-cell">{{ item.input_id }}</td>
+          <td>{{ item.student['name'] }}</td>
+          <td>{{ item.student['gender'] or '-' }}</td>
+          <td>{{ item.student['age'] or '-' }}</td>
+          <td>{{ item.student['grade'] or '-' }}</td>
+          <td>{{ item.student['class_name'] or '-' }}</td>
+          <td><span class="status found">已找到</span></td>
+        </tr>
+        {% else %}
+        <tr class="result-row missing">
+          <td class="id-cell">{{ item.input_id }}</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
+          <td><span class="status missing">未找到</span></td>
+        </tr>
+        {% endif %}
+      {% endfor %}
+      </tbody>
+      {% else %}
       <thead>
         <tr><th>输入姓名</th><th>用户 ID</th><th>性别</th><th>年龄</th><th>年级</th><th>班级</th><th>状态</th></tr>
       </thead>
@@ -63,6 +99,7 @@
         {% endif %}
       {% endfor %}
       </tbody>
+      {% endif %}
     </table>
   </div>
 </section>

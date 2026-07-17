@@ -85,7 +85,7 @@ class AppTestCase(unittest.TestCase):
         response = self.login()
         self.assertIn("批量查询".encode(), response.data)
 
-    def test_import_query_and_duplicate_name_candidates(self):
+    def test_name_and_id_queries_deduplicate_inputs(self):
         self.login()
         response = self.import_rows(
             [
@@ -106,6 +106,21 @@ class AppTestCase(unittest.TestCase):
         self.assertIn(b"1002", response.data)
         self.assertEqual(response.data.count("重名候选".encode()), 2)
         self.assertIn("未找到".encode(), response.data)
+
+        token = self.csrf("/?mode=id")
+        response = self.client.post(
+            "/",
+            data={
+                "mode": "id",
+                "ids": "1003\n1003\n9999\n9999",
+                "_csrf_token": token,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.count(b'class="result-row'), 2)
+        self.assertEqual(response.data.count("李四".encode()), 1)
+        self.assertIn("按 ID 查学生".encode(), response.data)
+        self.assertIn(b"9999", response.data)
 
     def test_invalid_import_keeps_existing_roster(self):
         self.login()

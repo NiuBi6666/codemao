@@ -81,7 +81,8 @@ document.addEventListener("click", async (event) => {
   }
 
   if (event.target.id === "export-results") {
-    const headers = ["输入姓名", "用户ID", "性别", "年龄", "年级", "班级", "状态"];
+    const headers = [...document.querySelectorAll("#result-table thead th")]
+      .map((cell) => cell.innerText.trim());
     const rows = resultRows();
     const csv = "\uFEFF" + [headers, ...rows].map((row) => row.map(csvEscape).join(",")).join("\r\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
