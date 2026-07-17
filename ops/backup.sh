@@ -1,11 +1,7 @@
-#!/usr/bin/env sh
-set -eu
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
-PROJECT_DIR="${PROJECT_DIR:-/opt/codemao}"
+PROJECT_DIR="${PROJECT_DIR:-$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)}"
 BACKUP_DIR="${BACKUP_DIR:-/opt/codemao-backups}"
-STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 
-mkdir -p "$BACKUP_DIR"
-cp "$PROJECT_DIR/data/codemao.sqlite3" "$BACKUP_DIR/codemao-$STAMP.sqlite3"
-find "$BACKUP_DIR" -type f -name 'codemao-*.sqlite3' -mtime +30 -delete
-echo "$BACKUP_DIR/codemao-$STAMP.sqlite3"
+exec "$PROJECT_DIR/ops/migration-export.sh" "$BACKUP_DIR"
