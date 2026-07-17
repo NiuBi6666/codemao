@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}学生 ID 查询{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
-  <script src="{{ url_for('static', filename='app.js', v='20260717-clipboard') }}" defer></script>
+  <script src="{{ url_for('static', filename='app.js', v='20260717-dedupe') }}" defer></script>
 </head>
 <body class="{% if not g.user %}auth-page{% endif %}">
   {% if g.user %}

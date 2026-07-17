@@ -106,10 +106,12 @@ def permission_required(code):
 
 def parse_names(raw):
     names = []
+    seen = set()
     for part in NAME_SPLIT_RE.split(raw or ""):
         name = "".join(part.strip().split())
-        if name:
+        if name and name not in seen:
             names.append(name)
+            seen.add(name)
     return names
 
 

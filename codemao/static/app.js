@@ -10,9 +10,10 @@ function resultRows() {
 }
 
 function resultIds() {
-  return resultRows()
+  const ids = resultRows()
     .map((row) => row[1])
     .filter((value) => value && value !== "-");
+  return [...new Set(ids)];
 }
 
 async function writeClipboardText(text) {

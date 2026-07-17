@@ -99,7 +99,7 @@ class AppTestCase(unittest.TestCase):
         token = self.csrf("/")
         response = self.client.post(
             "/",
-            data={"names": "张三\n不存在", "_csrf_token": token},
+            data={"names": "张三\n张三\n不存在\n不存在", "_csrf_token": token},
         )
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"1001", response.data)
