@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} - 学生 ID 查询{% endblock %}
+{% block content %}
+<section class="error-state">
+  <strong>{{ code }}</strong>
+  <h1>{{ message }}</h1>
+  <a class="button primary" href="{{ url_for('web.query') if g.user else url_for('web.login') }}">返回</a>
+</section>
+{% endblock %}

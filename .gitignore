@@ -1,0 +1,17 @@
+.env
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+data/*
+!data/.gitkeep
+imports/*
+!imports/.gitkeep
+*.xlsx
+*.xls
+*.csv
+*.db
+*.sqlite*
+*.log

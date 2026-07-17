@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ '配置角色' if target else '新建角色' }} - 学生 ID 查询{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>{{ '配置角色' if target else '新建角色' }}</h1><p>选择该角色可以执行的操作</p></div></div>
+<section class="form-panel">
+  <form method="post" class="stack-form">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <label>角色名称
+      <input name="name" value="{{ request.form.get('name', target['name'] if target else '') }}" required maxlength="50">
+    </label>
+    <label>角色说明
+      <textarea name="description" rows="3" maxlength="200">{{ request.form.get('description', target['description'] if target else '') }}</textarea>
+    </label>
+    <fieldset>
+      <legend>权限</legend>
+      <div class="check-list">
+      {% for permission in permissions %}
+        <label class="check-row">
+          <input type="checkbox" name="permissions" value="{{ permission['code'] }}" {% if permission['code'] in selected %}checked{% endif %}>
+          <span><strong>{{ permission['name'] }}</strong><small>{{ permission['description'] }}</small></span>
+        </label>
+      {% endfor %}
+      </div>
+    </fieldset>
+    <div class="form-actions">
+      {% if target and not target['is_system'] %}
+      <button class="button danger" type="submit" formaction="{{ url_for('web.role_delete', role_id=target['id']) }}" data-confirm="删除角色会解除所有用户的该角色，确认继续？">删除角色</button>
+      {% endif %}
+      <span class="spacer"></span>
+      <a class="button secondary" href="{{ url_for('web.roles') }}">取消</a>
+      <button class="button primary" type="submit">保存</button>
+    </div>
+  </form>
+</section>
+{% endblock %}

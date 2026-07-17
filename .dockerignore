@@ -1,0 +1,15 @@
+.git
+.gitignore
+.env
+data
+imports
+tests
+__pycache__
+**/__pycache__
+*.py[cod]
+*.xlsx
+*.xls
+*.csv
+*.db
+*.sqlite*
+*.log

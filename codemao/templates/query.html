@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}批量查询 - 学生 ID 查询{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div>
+    <h1>批量查询</h1>
+    <p>当前名单 {{ roster_count }} 人</p>
+  </div>
+</div>
+
+<section class="tool-panel">
+  <form method="post" class="query-form">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <label for="names">学生姓名</label>
+    <textarea id="names" name="names" rows="9" placeholder="每行输入一个姓名，也支持逗号分隔" required>{{ raw_names }}</textarea>
+    <div class="toolbar">
+      <span class="field-note">单次最多 500 个姓名</span>
+      <button class="button primary" type="submit">查询 ID</button>
+    </div>
+  </form>
+</section>
+
+{% if summary %}
+<section class="summary-strip" aria-label="查询统计">
+  <div><strong>{{ summary.total }}</strong><span>输入</span></div>
+  <div><strong>{{ summary.found }}</strong><span>已找到</span></div>
+  <div class="{{ 'warn' if summary.missing else '' }}"><strong>{{ summary.missing }}</strong><span>未找到</span></div>
+  <div class="{{ 'warn' if summary.ambiguous else '' }}"><strong>{{ summary.ambiguous }}</strong><span>重名</span></div>
+</section>
+
+<section class="results-section">
+  <div class="section-heading">
+    <h2>查询结果</h2>
+    <div class="button-row">
+      <button class="button secondary" id="copy-results" type="button">复制结果</button>
+      <button class="button secondary" id="export-results" type="button">导出 CSV</button>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table id="result-table">
+      <thead>
+        <tr><th>输入姓名</th><th>用户 ID</th><th>性别</th><th>年龄</th><th>年级</th><th>班级</th><th>状态</th></tr>
+      </thead>
+      <tbody>
+      {% for item in results %}
+        {% if item.matches %}
+          {% for student in item.matches %}
+          <tr class="result-row">
+            <td>{{ item.input_name }}</td>
+            <td class="id-cell">{{ student['user_id'] }}</td>
+            <td>{{ student['gender'] or '-' }}</td>
+            <td>{{ student['age'] or '-' }}</td>
+            <td>{{ student['grade'] or '-' }}</td>
+            <td>{{ student['class_name'] or '-' }}</td>
+            <td><span class="status {{ 'ambiguous' if item.matches|length > 1 else 'found' }}">{{ '重名候选' if item.matches|length > 1 else '已找到' }}</span></td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr class="result-row missing">
+            <td>{{ item.input_name }}</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
+            <td><span class="status missing">未找到</span></td>
+          </tr>
+        {% endif %}
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

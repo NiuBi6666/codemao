@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}角色权限 - 学生 ID 查询{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><h1>角色权限</h1><p>角色定义权限，用户可分配一个或多个角色</p></div>
+  <a class="button primary" href="{{ url_for('web.role_new') }}">新建角色</a>
+</div>
+<section class="results-section">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>角色</th><th>权限</th><th>用户数</th><th></th></tr></thead>
+      <tbody>
+      {% for role in roles %}
+        <tr>
+          <td>{{ role['name'] }}{% if role['is_system'] %}<span class="badge">预置</span>{% endif %}<small class="block">{{ role['description'] }}</small></td>
+          <td>{{ role['permission_names'] or '无权限' }}</td>
+          <td>{{ role['user_count'] }}</td>
+          <td class="actions"><a href="{{ url_for('web.role_edit', role_id=role['id']) }}">配置</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

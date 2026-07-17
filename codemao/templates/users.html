@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}用户管理 - 学生 ID 查询{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><h1>用户管理</h1><p>账号状态、密码和角色分配</p></div>
+  <a class="button primary" href="{{ url_for('web.user_new') }}">新建用户</a>
+</div>
+<section class="results-section">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>用户名</th><th>显示名称</th><th>角色</th><th>状态</th><th></th></tr></thead>
+      <tbody>
+      {% for user in users %}
+        <tr>
+          <td>{{ user['username'] }}</td>
+          <td>{{ user['display_name'] }}{% if user['is_superadmin'] %}<span class="badge">超级管理员</span>{% endif %}</td>
+          <td>{{ user['role_names'] or '-' }}</td>
+          <td><span class="status {{ 'found' if user['is_active'] else 'missing' }}">{{ '启用' if user['is_active'] else '停用' }}</span></td>
+          <td class="actions"><a href="{{ url_for('web.user_edit', user_id=user['id']) }}">编辑</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

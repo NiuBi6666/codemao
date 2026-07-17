@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}登录 - 学生 ID 查询{% endblock %}
+{% block main_class %}auth-shell{% endblock %}
+{% block content %}
+<section class="login-panel">
+  <div class="login-brand">
+    <span class="brand-mark large">ID</span>
+    <div>
+      <h1>学生 ID 查询</h1>
+      <p>授权人员登录</p>
+    </div>
+  </div>
+  <form method="post" class="stack-form">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <label>用户名
+      <input name="username" autocomplete="username" required autofocus maxlength="50">
+    </label>
+    <label>密码
+      <input type="password" name="password" autocomplete="current-password" required>
+    </label>
+    <button class="button primary full" type="submit">登录</button>
+  </form>
+</section>
+{% endblock %}

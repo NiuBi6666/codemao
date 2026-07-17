@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}学生名单 - 学生 ID 查询{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><h1>学生名单</h1><p>上传新文件会事务式替换当前完整名单</p></div>
+</div>
+
+<section class="summary-strip three" aria-label="名单统计">
+  <div><strong>{{ stats['total'] }}</strong><span>学生</span></div>
+  <div><strong>{{ stats['distinct_names'] }}</strong><span>不同姓名</span></div>
+  <div><strong>{{ stats['classes'] }}</strong><span>班级</span></div>
+</section>
+
+<section class="tool-panel">
+  <div class="section-heading">
+    <div><h2>导入 Excel</h2><p>表头依次为：用户ID、姓名、性别、年龄、年级、班级名称</p></div>
+  </div>
+  <form method="post" action="{{ url_for('web.roster_import') }}" enctype="multipart/form-data" class="upload-row">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <label class="file-control">选择 .xlsx 文件
+      <input type="file" name="roster" accept=".xlsx" required>
+    </label>
+    <button class="button primary" type="submit" data-confirm="导入后会完整替换当前学生名单，确认继续？">校验并导入</button>
+  </form>
+</section>
+
+<section class="results-section">
+  <div class="section-heading"><h2>导入记录</h2></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>时间</th><th>文件</th><th>人数</th><th>操作者</th></tr></thead>
+      <tbody>
+      {% for item in imports %}
+        <tr><td>{{ item['created_at'] }}</td><td>{{ item['filename'] }}</td><td>{{ item['row_count'] }}</td><td>{{ item['display_name'] or '系统初始化' }}</td></tr>
+      {% else %}
+        <tr><td colspan="4" class="empty">暂无导入记录</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

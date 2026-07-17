@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}审计日志 - 学生 ID 查询{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>审计日志</h1><p>最近 500 条安全与管理操作，不记录查询姓名内容</p></div></div>
+<section class="results-section">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>时间</th><th>操作者</th><th>操作</th><th>详情</th><th>IP</th></tr></thead>
+      <tbody>
+      {% for log in logs %}
+        <tr><td>{{ log['created_at'] }}</td><td>{{ log['display_name'] or log['username'] or '-' }}</td><td>{{ log['action'] }}</td><td class="details">{{ log['details'] }}</td><td>{{ log['ip_address'] or '-' }}</td></tr>
+      {% else %}
+        <tr><td colspan="5" class="empty">暂无日志</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}学生 ID 查询{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body class="{% if not g.user %}auth-page{% endif %}">
+  {% if g.user %}
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('web.query') }}" aria-label="学生 ID 查询首页">
+      <span class="brand-mark">ID</span>
+      <span>学生 ID 查询</span>
+    </a>
+    <nav aria-label="主导航">
+      {% if has_permission('query_students') %}<a class="{{ 'active' if request.endpoint == 'web.query' }}" href="{{ url_for('web.query') }}">批量查询</a>{% endif %}
+      {% if has_permission('manage_roster') %}<a class="{{ 'active' if request.endpoint in ['web.roster', 'web.roster_import'] }}" href="{{ url_for('web.roster') }}">学生名单</a>{% endif %}
+      {% if has_permission('manage_users') %}<a class="{{ 'active' if request.endpoint and request.endpoint.startswith('web.user') }}" href="{{ url_for('web.users') }}">用户</a>{% endif %}
+      {% if has_permission('manage_users') %}<a class="{{ 'active' if request.endpoint and request.endpoint.startswith('web.role') }}" href="{{ url_for('web.roles') }}">角色权限</a>{% endif %}
+      {% if has_permission('view_audit') %}<a class="{{ 'active' if request.endpoint == 'web.audit_logs' }}" href="{{ url_for('web.audit_logs') }}">审计日志</a>{% endif %}
+    </nav>
+    <div class="account">
+      <span>{{ g.user['display_name'] }}</span>
+      <form method="post" action="{{ url_for('web.logout') }}">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <button class="link-button" type="submit">退出</button>
+      </form>
+    </div>
+  </header>
+  {% endif %}
+
+  <main class="{% block main_class %}page{% endblock %}">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-stack" aria-live="polite">
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
